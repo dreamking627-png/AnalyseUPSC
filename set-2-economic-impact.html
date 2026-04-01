@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AnalyseUPSC – Economic Impact & Drain of Wealth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1e293b;
+            color: white;
+            padding: 20px 24px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .home-link {
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .home-link:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* Timer controls */
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #334155;
+            padding: 5px 15px;
+            border-radius: 40px;
+        }
+
+        .timer-controls label {
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .timer-controls input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .timer-select {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .timer-display {
+            background: #0f172a;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .timer-display.active {
+            display: block;
+        }
+
+        .timer-warning {
+            color: #f97316;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .quiz-area {
+            padding: 24px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            color: #0f172a;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .option:hover {
+            background: #e2e8f0;
+            transform: translateX(4px);
+        }
+
+        .option.correct-highlight {
+            background: #bbf7d0;
+            border-color: #15803d;
+        }
+
+        .option.wrong-highlight {
+            background: #fee2e2;
+            border-color: #b91c1c;
+        }
+
+        .analysis {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            border-left: 4px solid #3b82f6;
+            display: none;
+        }
+
+        .analysis.show {
+            display: block;
+        }
+
+        .analysis h4 {
+            margin-bottom: 12px;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+
+        .analysis .option-analysis {
+            margin: 10px 0;
+            padding-left: 16px;
+            border-left: 2px solid #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0;
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 20px;
+        }
+
+        .palette-item {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .palette-item:hover {
+            background: #cbd5e1;
+        }
+
+        .palette-item.current {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .palette-item.answered {
+            background: #bbf7d0;
+            border-color: #15803d;
+        }
+
+        .palette-item.unanswered-timer {
+            background: #ffe4e4;
+            border-color: #f97316;
+        }
+
+        .progress {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        /* Results modal */
+        .results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .results-modal {
+            background: white;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .results-modal h2 {
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+
+        .score-card {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .result-analysis {
+            margin: 15px 0;
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .close-results {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 20px;
+            }
+            .question-text {
+                font-size: 1.1rem;
+            }
+            .palette-item {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>📊 Economic Impact & Drain of Wealth</h1>
+            <p>Drain Theory, Commercialization of Agriculture, Labour Conditions | 10 PYQs</p>
+        </div>
+        <div class="header-controls">
+            <div class="timer-controls">
+                <label>⏱️ Set Timer</label>
+                <input type="checkbox" id="timerToggle">
+                <select id="timerDuration" class="timer-select" disabled>
+                    <option value="5">5 min</option>
+                    <option value="10">10 min</option>
+                    <option value="15" selected>15 min</option>
+                    <option value="20">20 min</option>
+                    <option value="25">25 min</option>
+                </select>
+            </div>
+            <div class="timer-display" id="timerDisplay">00:00</div>
+            <a href="index.html" class="home-link">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <div class="quiz-area" id="quizArea">
+        <div class="question-text" id="questionText">Loading...</div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="analysis" id="analysisContainer">
+            <h4>📖 Detailed Analysis</h4>
+            <div id="analysisContent"></div>
+        </div>
+        <div class="question-palette" id="paletteContainer"></div>
+        <div class="navigation">
+            <div class="nav-buttons">
+                <button id="prevBtn" disabled>← Previous</button>
+                <button id="nextBtn">Next →</button>
+            </div>
+            <div class="progress">Question <span id="currentIdxDisplay">1</span> / <span id="totalQDisplay">10</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Modal -->
+<div id="resultsModal" class="results-overlay">
+    <div class="results-modal">
+        <h2>📊 Quiz Results</h2>
+        <div id="resultsContent"></div>
+        <button class="close-results" onclick="closeResults()">Close</button>
+    </div>
+</div>
+
+<script>
+    // ========== SET 2: ECONOMIC IMPACT & DRAIN OF WEALTH ==========
+    const questions = [
+        {
+            id: 1,
+            text: "There was no independent development of industries in India during British rule because of the:",
+            options: ["absence of heavy industries", "scarcity of foreign capital", "scarcity of natural resources", "preference of the rich to invest in land"],
+            correct: 3,
+            analysis: {
+                options: [
+                    "✗ This was a result rather than the cause. The British deliberately discouraged heavy industries to keep India as a market for British manufactured goods.",
+                    "✗ Foreign capital was not scarce; British capital was actively invested in railways, plantations, and trade. But it was directed towards sectors that served British interests.",
+                    "✗ India was rich in natural resources like iron ore, coal, and cotton. The lack of industrialisation was not due to resource scarcity.",
+                    "✓ Indian merchants and bankers traditionally invested in land, trade, and usury rather than industry because industrial ventures were risky. The colonial land revenue system also made land a safe investment."
+                ]
+            }
+        },
+        {
+            id: 2,
+            text: "During the colonial period in India, what was the purpose of the Whitley Commission?",
+            options: ["To review the fitness of India for further political reforms", "To report on existing conditions of labour and to make recommendations", "To draw up a plan for financial reforms for India", "To develop a comprehensive scheme for Civil Services in India"],
+            correct: 1,
+            analysis: {
+                options: [
+                    "✗ This was the purpose of the Simon Commission (1927), not the Whitley Commission.",
+                    "✓ The Royal Commission on Labour (Whitley Commission) was appointed in 1929 under John Whitley. Its mandate was to investigate labour conditions in India and suggest reforms.",
+                    "✗ Financial reforms were handled by the Hilton Young Commission (1926), which led to the Reserve Bank of India.",
+                    "✗ Civil services reforms were examined by the Lee Commission (1923) and the Aitchison Committee (1886)."
+                ]
+            }
+        },
+        {
+            id: 3,
+            text: "In India, the first Bank of limited liability managed by Indians and founded in 1881 was:",
+            options: ["Hindustan Commercial Bank", "Oudh Commercial Bank", "Punjab National Bank", "Punjab and Sind Bank"],
+            correct: 1,
+            analysis: {
+                options: [
+                    "✗ Hindustan Commercial Bank was founded in 1940, much later.",
+                    "✓ Oudh Commercial Bank was established in 1881 at Faizabad by Raja Rampal Singh. It was the first bank in India with limited liability managed entirely by Indians.",
+                    "✗ Punjab National Bank was founded in 1894 by Lala Lajpat Rai and others, it was important but not the first.",
+                    "✗ Punjab and Sind Bank was established in 1908."
+                ]
+            }
+        },
+        {
+            id: 4,
+            text: "With reference to the period of colonial rule in India, 'Home Charges' formed an important part of the drain of wealth from India. Which of the following funds constituted 'Home Charges'?\n1. Funds used to support the India Office in London.\n2. Funds used to pay salaries and pensions of British personnel engaged in India.\n3. Funds used for waging wars outside India by the British.",
+            options: ["1 only", "1 and 2 only", "2 and 3 only", "1, 2 and 3"],
+            correct: 3,
+            analysis: {
+                options: [
+                    "✗ Incomplete; all three were part of Home Charges.",
+                    "✗ Incomplete; wars outside India were also charged to Indian revenues.",
+                    "✗ Missing the India Office expenses.",
+                    "✓ All three constituted Home Charges: expenses of the India Office, pensions/salaries of British officials, and the cost of British wars outside India."
+                ]
+            }
+        },
+        {
+            id: 5,
+            text: "With reference to Ryotwari Settlement, consider the following statements:\n1. The rent was paid directly by the peasants to the Government.\n2. The government gave Pattas to the Ryots.\n3. The lands were surveyed and assessed before being taxed.",
+            options: ["1 only", "1 and 2 only", "1, 2 and 3", "None"],
+            correct: 2,
+            analysis: {
+                options: [
+                    "✗ True but incomplete.",
+                    "✗ Both true, but statement 3 is also true.",
+                    "✓ All three are correct: In Ryotwari, land was assessed after survey, peasants received pattas, and revenue was collected directly from them.",
+                    "✗ All statements are true."
+                ]
+            }
+        },
+        {
+            id: 6,
+            text: "Who of the following was/were economic critic/critics of colonialism in India?\n1. Dadabhai Naoroji\n2. G. Subramania Iyer\n3. R.C. Dutt",
+            options: ["1 only", "1 and 2 only", "2 and 3 only", "1, 2 and 3"],
+            correct: 3,
+            analysis: {
+                options: [
+                    "✗ Naoroji wrote 'Poverty and Un-British Rule in India' (1901), highlighting the drain of wealth.",
+                    "✗ Subramania Iyer (editor of The Hindu) also critiqued colonial economic policies.",
+                    "✗ All three are major critics.",
+                    "✓ All three were economic critics: Dadabhai Naoroji (drain theory), R.C. Dutt (Economic History of India), G. Subramania Iyer (journalist advocating Indian industry)."
+                ]
+            }
+        },
+        {
+            id: 7,
+            text: "Economically, one of the results of the British rule in India in the 19th century was the:",
+            options: ["increase in the export of Indian handicrafts", "growth in the number of Indian owned factories", "commercialization of Indian agriculture", "rapid increase in the urban population"],
+            correct: 2,
+            analysis: {
+                options: [
+                    "✗ Handicraft exports declined due to competition from British machine-made goods.",
+                    "✗ Indian-owned factories began to appear only in the late 19th century, but this was not a primary result.",
+                    "✓ The British encouraged production of cash crops (cotton, indigo, tea, opium) for export, transforming subsistence agriculture into commercial agriculture.",
+                    "✗ Urbanisation did occur, but it was modest and not as pronounced as the commercialisation of agriculture."
+                ]
+            }
+        },
+        {
+            id: 8,
+            text: "The staple commodities of export by the English East India Company from Bengal in the middle of the 18th century were:",
+            options: ["Raw cotton, oil-seeds and opium", "Sugar, salt, zinc and lead", "Copper, silver, gold, spices and tea", "Cotton, silk, saltpetre and opium"],
+            correct: 3,
+            analysis: {
+                options: [
+                    "✗ Raw cotton and oilseeds were exported, but opium became major only after the 1770s.",
+                    "✗ These were not the principal exports from Bengal.",
+                    "✗ These were imports into India, not exports from Bengal.",
+                    "✓ Bengal was famous for fine cotton (muslin), silk (Murshidabad), saltpetre (gunpowder), and later opium."
+                ]
+            }
+        },
+        {
+            id: 9,
+            text: "Which of the following statements correctly explain the impact of the Industrial Revolution on India during the first half of the nineteenth century?",
+            options: ["Indian handicrafts were ruined.", "Machines were introduced in the Indian textile industry in large number.", "Railway lines were laid in many parts of the country.", "Heavy duties were imposed on the imports of British manufactures."],
+            correct: 0,
+            analysis: {
+                options: [
+                    "✓ The Industrial Revolution led to flooding of Indian markets with cheap British machine‑made goods, destroying traditional handicrafts.",
+                    "✗ This occurred only later in the century, not in the first half.",
+                    "✗ Railways started from 1853, after the first half of the century.",
+                    "✗ Duties were actually lowered to facilitate British imports; heavy duties were imposed on Indian exports."
+                ]
+            }
+        },
+        {
+            id: 10,
+            text: "Which of the following pairs are correctly matched?\n1. AD 1767-69 – First Anglo-Maratha War\n2. AD 1790-92 – Third Mysore War\n3. AD 1824-26 – First Anglo-Burmese War\n4. AD 1845-46 – Second Sikh War",
+            options: ["2 and 4", "3 and 4", "1 and 2", "2 and 3"],
+            correct: 3,
+            analysis: {
+                options: [
+                    "✗ Pair 2 is correct, but Pair 4: AD 1845-46 is First Anglo-Sikh War, not Second.",
+                    "✗ Pair 3 is correct, but Pair 4 is incorrect.",
+                    "✗ Pair 1 is incorrect (First Anglo-Maratha War was 1775-82).",
+                    "✓ Pair 2: 1790-92 – Third Mysore War ✅\nPair 3: 1824-26 – First Anglo-Burmese War ✅"
+                ]
+            }
+        }
+    ];
+
+    // ========== APP STATE ==========
+    let currentIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null); // null = not answered, -1 = unattempted (timer end)
+    let answerLock = false;
+    
+    // Timer variables
+    let timerEnabled = false;
+    let timerInterval = null;
+    let totalTimeSeconds = 15 * 60; // default 15 minutes
+    let timeRemaining = totalTimeSeconds;
+    let quizSubmitted = false;
+
+    // Scoring constants
+    const MARK_CORRECT = 2;
+    const MARK_INCORRECT = -0.67;
+
+    // DOM elements
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const analysisContainer = document.getElementById('analysisContainer');
+    const analysisContent = document.getElementById('analysisContent');
+    const paletteContainer = document.getElementById('paletteContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const currentIdxDisplay = document.getElementById('currentIdxDisplay');
+    const totalQDisplay = document.getElementById('totalQDisplay');
+    const timerToggle = document.getElementById('timerToggle');
+    const timerDurationSelect = document.getElementById('timerDuration');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const resultsModal = document.getElementById('resultsModal');
+
+    totalQDisplay.textContent = questions.length;
+
+    // ========== TIMER FUNCTIONS ==========
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (timeRemaining <= 60) {
+            timerDisplay.classList.add('timer-warning');
+        } else {
+            timerDisplay.classList.remove('timer-warning');
+        }
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerDisplay.classList.add('active');
+        timerInterval = setInterval(() => {
+            if (!timerEnabled || quizSubmitted) return;
+            if (timeRemaining <= 1) {
+                // Time's up - submit quiz automatically
+                clearInterval(timerInterval);
+                timerInterval = null;
+                submitQuizByTimer();
+            } else {
+                timeRemaining--;
+                updateTimerDisplay();
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        timerDisplay.classList.remove('active');
+    }
+
+    function resetTimer() {
+        timeRemaining = totalTimeSeconds;
+        updateTimerDisplay();
+        if (timerEnabled && !quizSubmitted) {
+            if (timerInterval) clearInterval(timerInterval);
+            startTimer();
+        }
+    }
+
+    function submitQuizByTimer() {
+        if (quizSubmitted) return;
+        quizSubmitted = true;
+        stopTimer();
+        
+        // Mark all unanswered questions as -1 (unattempted)
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] === null) {
+                userAnswers[i] = -1;
+            }
+        }
+        
+        // Calculate score
+        let totalScore = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let unattemptedCount = 0;
+        
+        for (let i = 0; i < questions.length; i++) {
+            const answer = userAnswers[i];
+            const isCorrect = (answer === questions[i].correct);
+            
+            if (answer === null || answer === -1) {
+                unattemptedCount++;
+                totalScore += 0;
+            } else if (isCorrect) {
+                correctCount++;
+                totalScore += MARK_CORRECT;
+            } else {
+                incorrectCount++;
+                totalScore += MARK_INCORRECT;
+            }
+        }
+        
+        // Build results HTML
+        let resultsHtml = `
+            <div class="score-card">
+                <div class="score-number">${totalScore.toFixed(2)} / ${questions.length * MARK_CORRECT}</div>
+                <div>Correct: ${correctCount} (${MARK_CORRECT} marks each) | Incorrect: ${incorrectCount} (-${Math.abs(MARK_INCORRECT)} each) | Unattempted: ${unattemptedCount}</div>
+            </div>
+            <h3>Question-wise Analysis</h3>
+        `;
+        
+        for (let i = 0; i < questions.length; i++) {
+            const q = questions[i];
+            const answer = userAnswers[i];
+            const isCorrect = (answer === q.correct);
+            let status = '';
+            let statusColor = '';
+            
+            if (answer === null || answer === -1) {
+                status = '❌ Not Attempted';
+                statusColor = '#f97316';
+            } else if (isCorrect) {
+                status = '✅ Correct (+2)';
+                statusColor = '#15803d';
+            } else {
+                status = '❌ Incorrect (-0.67)';
+                statusColor = '#b91c1c';
+            }
+            
+            resultsHtml += `
+                <div class="result-analysis">
+                    <strong>Q${i+1}. ${q.text}</strong><br>
+                    <span style="color: ${statusColor}">${status}</span><br>
+                    <small>Correct answer: ${String.fromCharCode(65+q.correct)}. ${q.options[q.correct]}</small><br>
+                    <small>${q.analysis.options[q.correct]}</small>
+                </div>
+            `;
+        }
+        
+        document.getElementById('resultsContent').innerHTML = resultsHtml;
+        resultsModal.style.display = 'flex';
+        
+        // Disable further interaction
+        answerLock = true;
+        document.querySelectorAll('.option').forEach(opt => {
+            opt.style.pointerEvents = 'none';
+        });
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+    }
+
+    function closeResults() {
+        resultsModal.style.display = 'none';
+        // Optionally redirect to homepage
+        // window.location.href = 'index.html';
+    }
+
+    // Timer toggle event
+    timerToggle.addEventListener('change', (e) => {
+        timerEnabled = e.target.checked;
+        timerDurationSelect.disabled = !timerEnabled;
+        
+        if (timerEnabled) {
+            const selectedMinutes = parseInt(timerDurationSelect.value);
+            totalTimeSeconds = selectedMinutes * 60;
+            timeRemaining = totalTimeSeconds;
+            updateTimerDisplay();
+            startTimer();
+        } else {
+            stopTimer();
+            if (quizSubmitted) {
+                // Reset quiz state if timer was on and user toggles off? Better to keep as is
+            }
+        }
+    });
+
+    timerDurationSelect.addEventListener('change', () => {
+        if (timerEnabled) {
+            const selectedMinutes = parseInt(timerDurationSelect.value);
+            totalTimeSeconds = selectedMinutes * 60;
+            timeRemaining = totalTimeSeconds;
+            updateTimerDisplay();
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                startTimer();
+            }
+        }
+    });
+
+    // ========== QUIZ FUNCTIONS ==========
+    function renderCurrentQuestion() {
+        if (quizSubmitted) return;
+        const q = questions[currentIndex];
+        questionText.textContent = q.text;
+        
+        optionsContainer.innerHTML = '';
+        q.options.forEach((opt, idx) => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'option';
+            optDiv.textContent = `${String.fromCharCode(65+idx)}. ${opt}`;
+            optDiv.setAttribute('data-idx', idx);
+            optDiv.addEventListener('click', () => handleOptionClick(idx));
+            optionsContainer.appendChild(optDiv);
+        });
+        
+        if (userAnswers[currentIndex] !== null && userAnswers[currentIndex] !== -1) {
+            const selectedIdx = userAnswers[currentIndex];
+            const correctIdx = q.correct;
+            const optionDivs = document.querySelectorAll('.option');
+            optionDivs[correctIdx].classList.add('correct-highlight');
+            if (selectedIdx !== correctIdx) {
+                optionDivs[selectedIdx].classList.add('wrong-highlight');
+            }
+            showAnalysis(q, selectedIdx);
+        } else {
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('correct-highlight', 'wrong-highlight'));
+            analysisContainer.classList.remove('show');
+        }
+    }
+
+    function handleOptionClick(selectedIdx) {
+        if (answerLock || quizSubmitted) return;
+        if (userAnswers[currentIndex] !== null && userAnswers[currentIndex] !== -1) return;
+        
+        const q = questions[currentIndex];
+        const correctIdx = q.correct;
+        
+        userAnswers[currentIndex] = selectedIdx;
+        
+        const optionDivs = document.querySelectorAll('.option');
+        optionDivs[correctIdx].classList.add('correct-highlight');
+        if (selectedIdx !== correctIdx) {
+            optionDivs[selectedIdx].classList.add('wrong-highlight');
+        }
+        
+        showAnalysis(q, selectedIdx);
+        renderPalette();
+        answerLock = true;
+    }
+
+    function showAnalysis(q, selectedIdx) {
+        const analysis = q.analysis;
+        if (!analysis || !analysis.options) return;
+        
+        let html = '';
+        for (let i = 0; i < q.options.length; i++) {
+            const prefix = (i === q.correct) ? '✓' : '✗';
+            html += `<div class="option-analysis"><strong>${prefix} ${String.fromCharCode(65+i)}. ${q.options[i]}</strong><br>${analysis.options[i]}</div>`;
+        }
+        analysisContent.innerHTML = html;
+        analysisContainer.classList.add('show');
+    }
+
+    function renderPalette() {
+        paletteContainer.innerHTML = '';
+        for (let i = 0; i < questions.length; i++) {
+            const palItem = document.createElement('div');
+            palItem.className = 'palette-item';
+            palItem.textContent = i + 1;
+            if (userAnswers[i] !== null && userAnswers[i] !== -1) {
+                palItem.classList.add('answered');
+            } else if (userAnswers[i] === -1) {
+                palItem.classList.add('unanswered-timer');
+            }
+            if (i === currentIndex) palItem.classList.add('current');
+            palItem.addEventListener('click', () => goToQuestion(i));
+            paletteContainer.appendChild(palItem);
+        }
+    }
+
+    function goToQuestion(index) {
+        if (quizSubmitted) return;
+        if (index < 0 || index >= questions.length) return;
+        currentIndex = index;
+        answerLock = false;
+        renderCurrentQuestion();
+        renderPalette();
+        updateNavButtons();
+        currentIdxDisplay.textContent = currentIndex + 1;
+    }
+
+    function nextQuestion() {
+        if (quizSubmitted) return;
+        if (currentIndex + 1 < questions.length) {
+            currentIndex++;
+            answerLock = false;
+            renderCurrentQuestion();
+            renderPalette();
+            updateNavButtons();
+            currentIdxDisplay.textContent = currentIndex + 1;
+        }
+    }
+
+    function prevQuestion() {
+        if (quizSubmitted) return;
+        if (currentIndex > 0) {
+            currentIndex--;
+            answerLock = false;
+            renderCurrentQuestion();
+            renderPalette();
+            updateNavButtons();
+            currentIdxDisplay.textContent = currentIndex + 1;
+        }
+    }
+
+    function updateNavButtons() {
+        prevBtn.disabled = (currentIndex === 0);
+        nextBtn.disabled = (currentIndex === questions.length - 1);
+    }
+
+    prevBtn.addEventListener('click', prevQuestion);
+    nextBtn.addEventListener('click', nextQuestion);
+
+    // Initial render
+    renderCurrentQuestion();
+    renderPalette();
+    updateNavButtons();
+    currentIdxDisplay.textContent = 1;
+</script>
+</body>
+</html>
