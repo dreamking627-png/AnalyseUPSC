@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AnalyseUPSC – Subject‑wise Quiz Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Default theme (will be overridden by JS) */
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-light: #475569;
+            --primary: #1e3a8a;
+            --primary-hover: #1e40af;
+            --card-border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --transition: all 0.2s ease;
+            --hover-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .logo p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .theme-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .theme-select {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 1rem 1.5rem;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        /* Search & filter */
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 2rem;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--surface);
+        }
+
+        /* Subject sections */
+        .subjects-container {
+            margin: 2rem 0;
+        }
+
+        .subject-section {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            background: var(--surface);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .subject-header:hover {
+            background: var(--hover-bg);
+        }
+
+        .subject-header .icon {
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .subject-header.expanded .icon {
+            transform: rotate(90deg);
+        }
+
+        .topic-list {
+            display: none;
+            padding: 0.5rem 0;
+            background: var(--bg);
+        }
+
+        .topic-list.show {
+            display: block;
+        }
+
+        .topic-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem 0.75rem 3rem;
+            border-bottom: 1px solid var(--card-border);
+            transition: var(--transition);
+        }
+
+        .topic-item:hover {
+            background: var(--surface);
+        }
+
+        .topic-info {
+            flex: 1;
+        }
+
+        .topic-name {
+            font-weight: 500;
+        }
+
+        .topic-desc {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.2rem;
+        }
+
+        .topic-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .question-count {
+            font-size: 0.8rem;
+            background: var(--surface);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .start-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .start-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Recent section */
+        .recent-section {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .recent-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .recent-list {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .recent-badge {
+            background: var(--bg);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .recent-badge:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid var(--card-border);
+            margin-top: 3rem;
+            padding: 2rem 0;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 1rem;
+            }
+            .topic-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .topic-meta {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <h1>📚 AnalyseUPSC</h1>
+            <p>Master Prelims with Topic‑wise PYQs</p>
+        </div>
+        <div class="theme-controls">
+            <select id="themeSelect" class="theme-select">
+                <option value="dark-default">🌑 Dark (Default)</option>
+                <option value="dark-blue">🔵 Dark Blue</option>
+                <option value="dark-green">🟢 Dark Green</option>
+                <option value="dark-purple">🟣 Dark Purple</option>
+                <option value="dark-amber">🟠 Dark Amber</option>
+                <option value="light-modern">☀️ Light Modern</option>
+                <option value="light-warm">🟡 Light Warm</option>
+                <option value="forest">🌲 Forest</option>
+                <option value="ocean">🌊 Ocean</option>
+                <option value="sunset">🌅 Sunset</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Search & Random -->
+    <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search topics...">
+        <button class="btn" id="randomQuizBtn">🎲 Random Quiz</button>
+        <button class="btn btn-outline" id="resetFilterBtn">Reset</button>
+    </div>
+
+    <!-- Subjects container -->
+    <div class="subjects-container" id="subjectsContainer"></div>
+
+    <!-- Recently practiced -->
+    <div class="recent-section" id="recentSection" style="display: none;">
+        <div class="recent-title">🕒 Recently Practiced</div>
+        <div class="recent-list" id="recentList"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>AnalyseUPSC – Powered by UPSC PYQs & AI</p>
+        <p style="margin-top: 0.5rem;">📧 contact@analyseupsc.com | 📱 +91-9876543210</p>
+    </div>
+</div>
+
+<script>
+    // ========== SUBJECT AND TOPIC DATA ==========
+    const subjectsData = [
+        {
+            name: "🏛️ History of India",
+            topics: [
+                { name: "Modern History (1750–1947)", file: "set-1-modern-history.html", description: "British expansion, administration, and economic impact.", questions: 12 },
+                { name: "Economic Impact & Drain of Wealth", file: "set-2-economic-impact.html", description: "Drain theory, commercialization of agriculture, labour conditions.", questions: 10 },
+                { name: "Land Revenue Systems & Settlements", file: "set-3-land-revenue.html", description: "Permanent Settlement, Ryotwari, Mahalwari.", questions: 8 },
+                { name: "European Powers & Foreign Travellers", file: "set-4-european-powers.html", description: "Portuguese, Dutch, French, British – conflicts and travellers.", questions: 10 },
+                { name: "Early Nationalism & Moderate Phase", file: "set-5-early-nationalism.html", description: "Founding of Congress, moderate leaders, economic critique.", questions: 10 },
+                { name: "Swadeshi & Boycott Movement", file: "set-6-swadeshi.html", description: "Partition of Bengal, Swadeshi, Boycott.", questions: 10 },
+                { name: "Home Rule Movement & Lucknow Pact", file: "set-7-home-rule.html", description: "Home Rule leagues, Lucknow Pact, Montagu‑Chelmsford.", questions: 8 },
+                { name: "Gandhian Movements", file: "set-8-gandhian.html", description: "Champaran, Non‑Cooperation, Civil Disobedience, Quit India.", questions: 20 },
+                { name: "Revolutionary & Terrorist Movements", file: "set-9-revolutionary.html", description: "Ghadar, Chittagong, Kakori, INA.", questions: 12 },
+                { name: "Peasant & Tribal Movements", file: "set-10-peasant-tribal.html", description: "Indigo, Santhal, Munda, Tebhaga.", questions: 10 },
+                { name: "Constitutional Acts & Reforms", file: "set-11-constitutional.html", description: "Rowlatt, 1919 Act, 1935 Act, Cripps, Cabinet Mission.", questions: 12 },
+                { name: "Social & Religious Reform Movements", file: "set-12-social-reforms.html", description: "Brahmo Samaj, Arya Samaj, Prarthana Samaj, social reformers.", questions: 8 },
+                { name: "Cultural & Literary Movements", file: "set-13-cultural-literary.html", description: "Bengal Renaissance, literary works, art revival.", questions: 10 }
+            ]
+        },
+        {
+            name: "⚖️ Indian Polity & Governance",
+            topics: [
+                { name: "Constitutional Development", file: "polity-constitutional.html", description: "Constitutional acts, Constituent Assembly, Preamble.", questions: 0 },
+                { name: "Fundamental Rights & DPSP", file: "polity-fr-dpsp.html", description: "Part III and IV of the Constitution.", questions: 0 }
+            ]
+        },
+        {
+            name: "📈 Economic & Social Development",
+            topics: [
+                { name: "Indian Economy", file: "economy.html", description: "Economic planning, growth, sectors.", questions: 0 }
+            ]
+        },
+        {
+            name: "🌍 Geography",
+            topics: [
+                { name: "Physical Geography", file: "geography-physical.html", description: "Landforms, climate, soil.", questions: 0 }
+            ]
+        },
+        {
+            name: "🌿 Environment & Ecology",
+            topics: [
+                { name: "Biodiversity & Conservation", file: "environment.html", description: "Ecosystems, protected areas, climate change.", questions: 0 }
+            ]
+        },
+        {
+            name: "🔬 General Science & Technology",
+            topics: [
+                { name: "Science & Tech", file: "sci-tech.html", description: "Physics, chemistry, biology, space, IT.", questions: 0 }
+            ]
+        }
+    ];
+
+    // Flatten all topics for search and random
+    let allTopics = [];
+    subjectsData.forEach(subject => {
+        subject.topics.forEach(topic => {
+            allTopics.push({ ...topic, subject: subject.name });
+        });
+    });
+
+    const totalTopics = allTopics.length;
+    const totalQuestions = allTopics.reduce((sum, t) => sum + t.questions, 0);
+
+    // ========== LOCALSTORAGE ==========
+    let recentTopics = JSON.parse(localStorage.getItem('upsc_recent_topics')) || [];
+
+    function addRecentTopic(topicName) {
+        recentTopics = recentTopics.filter(t => t !== topicName);
+        recentTopics.unshift(topicName);
+        if (recentTopics.length > 3) recentTopics.pop();
+        localStorage.setItem('upsc_recent_topics', JSON.stringify(recentTopics));
+        renderRecentSection();
+    }
+
+    function renderRecentSection() {
+        const container = document.getElementById('recentSection');
+        const list = document.getElementById('recentList');
+        if (recentTopics.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'block';
+        list.innerHTML = '';
+        recentTopics.forEach(topicName => {
+            const topic = allTopics.find(t => t.name === topicName);
+            if (!topic) return;
+            const badge = document.createElement('div');
+            badge.className = 'recent-badge';
+            badge.textContent = topic.name;
+            badge.addEventListener('click', () => {
+                window.location.href = topic.file;
+            });
+            list.appendChild(badge);
+        });
+    }
+
+    // ========== RENDER STATS ==========
+    function renderStats() {
+        const statsDiv = document.getElementById('statsGrid');
+        statsDiv.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-number">${subjectsData.length}</div>
+                <div class="stat-label">Subjects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${totalTopics}</div>
+                <div class="stat-label">Topics</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">${totalQuestions}</div>
+                <div class="stat-label">Total PYQs</div>
+            </div>
+        `;
+    }
+
+    // ========== RENDER SUBJECTS ==========
+    let currentFilter = '';
+
+    function renderSubjects() {
+        const container = document.getElementById('subjectsContainer');
+        container.innerHTML = '';
+        subjectsData.forEach(subject => {
+            let filteredTopics = subject.topics;
+            if (currentFilter) {
+                filteredTopics = subject.topics.filter(topic =>
+                    topic.name.toLowerCase().includes(currentFilter) ||
+                    topic.description.toLowerCase().includes(currentFilter)
+                );
+            }
+            if (filteredTopics.length === 0) return;
+
+            const section = document.createElement('div');
+            section.className = 'subject-section';
+            const header = document.createElement('div');
+            header.className = 'subject-header';
+            header.innerHTML = `
+                <span>${subject.name}</span>
+                <span class="icon">▶</span>
+            `;
+            const topicListDiv = document.createElement('div');
+            topicListDiv.className = 'topic-list';
+            filteredTopics.forEach(topic => {
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'topic-item';
+                topicDiv.innerHTML = `
+                    <div class="topic-info">
+                        <div class="topic-name">${topic.name}</div>
+                        <div class="topic-desc">${topic.description}</div>
+                    </div>
+                    <div class="topic-meta">
+                        <span class="question-count">${topic.questions} Qs</span>
+                        <button class="start-btn" data-file="${topic.file}" data-name="${topic.name}">Start Quiz →</button>
+                    </div>
+                `;
+                topicListDiv.appendChild(topicDiv);
+            });
+            section.appendChild(header);
+            section.appendChild(topicListDiv);
+            container.appendChild(section);
+
+            header.addEventListener('click', () => {
+                header.classList.toggle('expanded');
+                topicListDiv.classList.toggle('show');
+            });
+        });
+
+        document.querySelectorAll('.start-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const file = btn.getAttribute('data-file');
+                const name = btn.getAttribute('data-name');
+                addRecentTopic(name);
+                window.location.href = file;
+            });
+        });
+    }
+
+    // ========== SEARCH ==========
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        currentFilter = e.target.value.toLowerCase();
+        renderSubjects();
+    });
+
+    document.getElementById('resetFilterBtn').addEventListener('click', () => {
+        searchInput.value = '';
+        currentFilter = '';
+        renderSubjects();
+    });
+
+    // ========== RANDOM QUIZ ==========
+    document.getElementById('randomQuizBtn').addEventListener('click', () => {
+        const availableTopics = allTopics.filter(t => t.questions > 0);
+        if (availableTopics.length === 0) return;
+        const randomTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+        addRecentTopic(randomTopic.name);
+        window.location.href = randomTopic.file;
+    });
+
+    // ========== THEMES (10 options) ==========
+    const themes = {
+        'dark-default': {
+            '--bg': '#0f172a', '--surface': '#1e293b', '--text': '#f1f5f9', '--text-light': '#94a3b8',
+            '--primary': '#3b82f6', '--primary-hover': '#60a5fa', '--card-border': '#334155', '--hover-bg': '#334155'
+        },
+        'dark-blue': {
+            '--bg': '#0c1a2f', '--surface': '#13294b', '--text': '#e8f0fe', '--text-light': '#9bb8e0',
+            '--primary': '#1e88e5', '--primary-hover': '#42a5f5', '--card-border': '#1e3a8a', '--hover-bg': '#1e3a8a'
+        },
+        'dark-green': {
+            '--bg': '#0f2c1a', '--surface': '#1a3a2a', '--text': '#e8f5e9', '--text-light': '#a5d6a7',
+            '--primary': '#2e7d32', '--primary-hover': '#43a047', '--card-border': '#2e7d32', '--hover-bg': '#2e7d32'
+        },
+        'dark-purple': {
+            '--bg': '#1a1035', '--surface': '#2c1e4a', '--text': '#f3e8ff', '--text-light': '#c4b5fd',
+            '--primary': '#8b5cf6', '--primary-hover': '#a78bfa', '--card-border': '#5b21b6', '--hover-bg': '#5b21b6'
+        },
+        'dark-amber': {
+            '--bg': '#2c1a0f', '--surface': '#3e2a1f', '--text': '#fff3e0', '--text-light': '#ffcc80',
+            '--primary': '#f59e0b', '--primary-hover': '#fbbf24', '--card-border': '#b45309', '--hover-bg': '#b45309'
+        },
+        'light-modern': {
+            '--bg': '#f8fafc', '--surface': '#ffffff', '--text': '#0f172a', '--text-light': '#475569',
+            '--primary': '#2563eb', '--primary-hover': '#3b82f6', '--card-border': '#e2e8f0', '--hover-bg': '#f1f5f9'
+        },
+        'light-warm': {
+            '--bg': '#fff7ed', '--surface': '#ffffff', '--text': '#2d1a0f', '--text-light': '#92400e',
+            '--primary': '#ea580c', '--primary-hover': '#f97316', '--card-border': '#fed7aa', '--hover-bg': '#ffedd5'
+        },
+        'forest': {
+            '--bg': '#14532d', '--surface': '#166534', '--text': '#fefce8', '--text-light': '#bef264',
+            '--primary': '#4ade80', '--primary-hover': '#86efac', '--card-border': '#15803d', '--hover-bg': '#15803d'
+        },
+        'ocean': {
+            '--bg': '#0c4a6e', '--surface': '#075985', '--text': '#f0f9ff', '--text-light': '#bae6fd',
+            '--primary': '#38bdf8', '--primary-hover': '#7dd3fc', '--card-border': '#0284c7', '--hover-bg': '#0284c7'
+        },
+        'sunset': {
+            '--bg': '#831843', '--surface': '#9d174d', '--text': '#fdf4ff', '--text-light': '#f5d0fe',
+            '--primary': '#f43f5e', '--primary-hover': '#fb7185', '--card-border': '#be185d', '--hover-bg': '#be185d'
+        }
+    };
+
+    function applyTheme(themeName) {
+        const theme = themes[themeName];
+        if (!theme) return;
+        const root = document.documentElement;
+        for (let [prop, val] of Object.entries(theme)) {
+            root.style.setProperty(prop, val);
+        }
+        localStorage.setItem('upsc_theme', themeName);
+    }
+
+    const savedTheme = localStorage.getItem('upsc_theme') || 'dark-default';
+    const themeSelect = document.getElementById('themeSelect');
+    themeSelect.value = savedTheme;
+    applyTheme(savedTheme);
+    themeSelect.addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+    });
+
+    // ========== INIT ==========
+    renderStats();
+    renderSubjects();
+    renderRecentSection();
+</script>
+</body>
+</html>
